@@ -19,6 +19,7 @@ jobs:
       CARGO_INCREMENTAL: 0
     steps:
     # Use sscache store in GitHub cache
+    - uses: actions/checkout@v3
     - uses: actions/cache@v3
       with:
         path: /home/runner/.cache/sccache
@@ -131,14 +132,14 @@ jobs:
 #        fail_ci_if_error: ${{ github.repository_owner == 'pyrsia' }}
 
   # Docker build that uses the published .deb file from the Linux build
-  docker:
-    runs-on: ubuntu-latest
-    needs: [build-push-linux]
-    if: github.repository_owner == 'pyrsia' && github.event_name == 'push'
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 2
+#  docker:
+#    runs-on: ubuntu-latest
+#    needs: [build-push-linux]
+#    if: github.repository_owner == 'pyrsia' && github.event_name == 'push'
+#    steps:
+#    - uses: actions/checkout@v3
+#      with:
+#        fetch-depth: 2
 
 #    - name: Login to DockerHub
 #      uses: docker/login-action@v2
