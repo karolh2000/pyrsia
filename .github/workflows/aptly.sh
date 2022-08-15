@@ -67,14 +67,14 @@ EOL
 ./aptly snapshot -config=/tmp/aptly.conf create $RELTYPE-snap from repo $RELTYPE
 
 # merge the public snap and local
-./aptly snapshot merge -config=/tmp/aptly.conf -no-remove $RELTYPE $RELTYPE-snap public-snap
+#./aptly snapshot merge -config=/tmp/aptly.conf -no-remove $RELTYPE $RELTYPE-snap public-snap
 
 # publish the merged snapshot
-./aptly publish snapshot -batch -passphrase="" -config=/tmp/aptly.conf $RELTYPE $RELTYPE
+#./aptly publish snapshot -batch -passphrase="" -config=/tmp/aptly.conf $RELTYPE $RELTYPE
 
 # Generate pretty directory listing web pages
-cd /tmp/aptly/public/$RELTYPE
-python3 /home/runner/work/pyrsia/pyrsia/.github/workflows/genlisting.py -r
+#cd /tmp/aptly/public/$RELTYPE
+#python3 /home/runner/work/pyrsia/pyrsia/.github/workflows/genlisting.py -r
 
 # copy new public repo to GCS
-gsutil -m rsync -r /tmp/aptly/public/$RELTYPE gs://debrepo/repos/$RELTYPE
+#gsutil -m rsync -r /tmp/aptly/public/$RELTYPE gs://debrepo/repos/$RELTYPE
