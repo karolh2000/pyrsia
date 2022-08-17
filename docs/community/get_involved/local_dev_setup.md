@@ -43,6 +43,22 @@ cargo build --all-targets
 cargo test --workspace
 ```
 
+## Build docker image and run Pyrsia node.
+
+Install Docker engine if not present (18.09 or higher).
+
+```sh
+cd $PYRSIA_HOME
+cargo build --all-targets
+cargo test --workspace
+```
+
+```sh
+cd $PYRSIA_HOME
+cargo build --all-targets
+cargo test --workspace
+```
+
 These commands should run successfully. If you have issues with these please reach out to the team on slack and report an issue/submit a PR.
 
 ## Simulate a network
