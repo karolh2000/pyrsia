@@ -1,0 +1,27 @@
+services:
+  pyrsia_node:
+    image: pyrsia/node
+    build:
+      context: ../..
+      target: node
+    command: [ "/tmp/entrypoint.sh", "--host", "0.0.0.0", "--listen", "/ip4/0.0.0.0/tcp/44000" ]
+    stdin_open: true
+    ports:
+      - "7888:7888"
+    volumes:
+      - "pyrsia_node:/tmp"
+
+  pyrsia_cli:
+    image: pyrsia/cli
+    build:
+      dockerfile: Dockerfilecli
+      target: cli
+    stdin_open: true
+    volumes:
+      - "pyrsia_cli:/tmp"
+    links:
+      - "pyrsia_node:pyrsia_node"
+
+volumes:
+  pyrsia_node:
+  pyrsia_cli:
