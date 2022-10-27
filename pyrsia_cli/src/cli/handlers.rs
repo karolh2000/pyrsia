@@ -52,6 +52,11 @@ pub fn config_add() {
     };
 }
 
+pub fn config_port() {
+    let config = config::get_config();
+    println!("{}", config.unwrap());
+}
+
 pub fn config_show() {
     let result = config::get_config();
     match result {

@@ -19,6 +19,8 @@ pub mod cli;
 use cli::handlers::*;
 use cli::parser::*;
 
+const SUBCOMMAND_CONFIG_EDIT: &str = "TEST";
+
 #[tokio::main]
 async fn main() {
     // parsing command line arguments
@@ -28,40 +30,58 @@ async fn main() {
 
     match matches.subcommand() {
         Some(("config", config_matches)) => {
-            if config_matches.is_present("add") || config_matches.is_present("edit") {
+            if config_matches.is_present("add") {
                 config_add();
             }
             if config_matches.is_present("show") {
                 config_show();
             }
+
+            match config_matches.subcommand() {
+                Some(("edit", edit_matches)) => {
+                    if edit_matches.is_present("all") {
+                        config_add();
+                    }
+                    if edit_matches.is_present("port") {
+                        config_port();
+                    }
+                    if edit_matches.is_present("storage") {
+                        config_port();
+                    }
+                    if edit_matches.is_present("address") {
+                        config_port();
+                    }
+                }
+                _ => {}
+            }
         }
         Some(("authorize", authorize_matches)) => {
             authorize(authorize_matches.get_one::<String>("peer").unwrap()).await;
         }
-        Some(("build", build_matches)) => match build_matches.subcommand() {
-            Some(("docker", docker_matches)) => {
+        Some((SUBCOMMAND_BUILD, build_matches)) => match build_matches.subcommand() {
+            Some((SUBCOMMAND_DOCKER, docker_matches)) => {
                 request_docker_build(docker_matches.get_one::<String>("image").unwrap()).await;
             }
-            Some(("maven", maven_matches)) => {
+            Some((SUBCOMMAND_MAVEN, maven_matches)) => {
                 request_maven_build(maven_matches.get_one::<String>("gav").unwrap()).await;
             }
             _ => {}
         },
-        Some(("list", _config_matches)) => {
+        Some((SUBCOMMAND_LIST, _config_matches)) => {
             node_list().await;
         }
-        Some(("ping", _config_matches)) => {
+        Some((SUBCOMMAND_PING, _config_matches)) => {
             node_ping().await;
         }
-        Some(("status", _config_matches)) => {
+        Some((SUBCOMMAND_STATUS, _config_matches)) => {
             node_status().await;
         }
-        Some(("inspect-log", build_matches)) => match build_matches.subcommand() {
-            Some(("docker", docker_matches)) => {
+        Some((SUBCOMMAND_INSPECT_LOG, build_matches)) => match build_matches.subcommand() {
+            Some((SUBCOMMAND_DOCKER, docker_matches)) => {
                 inspect_docker_transparency_log(docker_matches.get_one::<String>("image").unwrap())
                     .await;
             }
-            Some(("maven", maven_matches)) => {
+            Some((SUBCOMMAND_MAVEN, maven_matches)) => {
                 inspect_maven_transparency_log(maven_matches.get_one::<String>("gav").unwrap())
                     .await;
             }
