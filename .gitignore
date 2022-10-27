@@ -18,3 +18,4 @@ tests/reports/
 nodeA
 nodeB
 p2p_keypair.ser
+.run

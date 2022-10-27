@@ -17,8 +17,10 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
+use std::path::PathBuf;
+use confy::ConfyError;
 
-const CONF_FILE: &str = "pyrsia-cli";
+pub const CONF_FILE: &str = "pyrsia-cli";
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CliConfig {
@@ -67,6 +69,11 @@ pub fn get_config() -> Result<CliConfig> {
     let cfg: CliConfig = confy::load(CONF_FILE, None)?;
 
     Ok(cfg)
+}
+
+/// Returns Pyrsia CLI configuration path.
+pub fn get_config_file_path() -> Result<PathBuf, ConfyError>  {
+    return confy::get_configuration_file_path(CONF_FILE,  None);
 }
 
 #[cfg(test)]

@@ -56,7 +56,17 @@ pub fn config_show() {
     let result = config::get_config();
     match result {
         Ok(config) => {
-            println!("{}", config)
+            println!("{}", config);
+            let path = config::get_config_file_path();
+            match path {
+                Ok(path) => {
+                    println!("Pyrsia CLI configuration file: {}\n", path.display());
+                }
+                Err(_error) => {
+                    println!("No configuration file found!\n");
+                }
+            }
+
         }
         Err(error) => {
             println!("No Node Configured:       {}", error);
