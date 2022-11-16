@@ -16,8 +16,8 @@
 
 use super::config::get_config;
 use crate::node_api::model::cli::{
-    RequestAddAuthorizedNode, RequestDockerBuild, RequestDockerLog, RequestMavenBuild,
-    RequestMavenLog, Status,
+    RequestAddAuthorizedNode, RequestBuildStatus, RequestDockerBuild, RequestDockerLog,
+    RequestMavenBuild, RequestMavenLog, Status,
 };
 
 pub async fn ping() -> Result<String, reqwest::Error> {
@@ -55,6 +55,22 @@ pub async fn add_authorized_node(request: RequestAddAuthorizedNode) -> Result<()
 pub async fn request_docker_build(request: RequestDockerBuild) -> Result<String, reqwest::Error> {
     let node_url = format!("http://{}/build/docker", get_url());
     let client = reqwest::Client::new();
+    match client
+        .post(node_url)
+        .json(&request)
+        .send()
+        .await?
+        .error_for_status()
+    {
+        Ok(response) => response.json::<String>().await,
+        Err(e) => Err(e),
+    }
+}
+
+pub async fn request_build_status(request: RequestBuildStatus) -> Result<String, reqwest::Error> {
+    let node_url = format!("http://{}/build/status", get_url());
+    let client = reqwest::Client::new();
+
     match client
         .post(node_url)
         .json(&request)

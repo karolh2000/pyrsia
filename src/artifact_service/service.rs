@@ -173,6 +173,10 @@ impl ArtifactService {
         Ok(())
     }
 
+    pub async fn get_build_status(&mut self, build_id: &str) -> Result<String, BuildError> {
+        self.build_event_client.get_build_status(build_id).await
+    }
+
     pub async fn handle_block_added(
         &mut self,
         payloads: Vec<Vec<u8>>,
@@ -979,5 +983,46 @@ mod tests {
         let path = String::from(curr_dir.to_string_lossy());
         let reader = File::open(path.as_str()).unwrap();
         Ok(reader)
+    }
+
+    #[tokio::test]
+    async fn test_get_build_status_on_authorized_node() {
+        // test running
+        test_get_build_status("RUNNING").await;
+        // test success
+        test_get_build_status("SUCCESS").await;
+        // test FAILED
+        test_get_build_status("FAILED").await;
+    }
+
+    async fn test_get_build_status(build_status: &str) {
+        let tmp_dir = test_util::tests::setup();
+        let keypair = Keypair::generate();
+        let (_command_receiver, p2p_client) = create_p2p_client(&keypair);
+        let (mut build_event_receiver, mut artifact_service) =
+            create_artifact_service(&tmp_dir, &keypair, p2p_client.clone()).await;
+
+        let build_id = uuid::Uuid::new_v4().to_string();
+        // get build status
+        let build_status_receiver = String::from(build_status);
+        tokio::spawn(async move {
+            loop {
+                match build_event_receiver.recv().await {
+                    Some(BuildEvent::Status { sender, .. }) => {
+                        let _ = sender.send(Ok(build_status_receiver.clone()));
+                    }
+                    _ => panic!(
+                        "BuildEvent must match BuildEvent::Status ({})",
+                        build_status_receiver
+                    ),
+                }
+            }
+        });
+
+        let result = artifact_service.get_build_status(&build_id).await.unwrap();
+
+        //assert_eq!(result, build_status);
+        assert_eq!(result, build_status);
+        test_util::tests::teardown(tmp_dir);
     }
 }
