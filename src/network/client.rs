@@ -357,6 +357,28 @@ impl Client {
 
         Ok(())
     }
+
+    pub async fn request_build_status(
+        &mut self,
+        peer_id: &PeerId,
+        build_id: String,
+    ) -> anyhow::Result<String> {
+        debug!(
+            "p2p::Client::request_build_status peer_id {:?}, build_id: {:?}",
+            peer_id, build_id
+        );
+
+        let (sender, receiver) = oneshot::channel();
+        self.sender
+            .send(Command::RequestBuildStatus {
+                peer: *peer_id,
+                build_id,
+                sender,
+            })
+            .await?;
+
+        receiver.await?
+    }
 }
 
 #[cfg(test)]

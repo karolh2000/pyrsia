@@ -174,7 +174,40 @@ impl ArtifactService {
     }
 
     pub async fn get_build_status(&mut self, build_id: &str) -> Result<String, BuildError> {
-        self.build_event_client.get_build_status(build_id).await
+        let local_peer_id = self.p2p_client.local_peer_id;
+        debug!("Got local node with peer_id: {:?}", local_peer_id.clone());
+
+        let nodes = self
+            .transparency_log_service
+            .get_authorized_nodes()
+            .map_err(|e| BuildError::InitializationFailed(e.to_string()))?;
+
+        let peer_id = match nodes
+            .iter()
+            .map(|node| PeerId::from_str(&node.node_id).unwrap())
+            .find_or_last(|&auth_peer_id| local_peer_id.eq(&auth_peer_id))
+        {
+            Some(auth_peer_id) => {
+                debug!(
+                    "Got authorized node with peer_id: {:?}",
+                    auth_peer_id.clone()
+                );
+                auth_peer_id
+            }
+            None => panic!("Error unexpected looking for authorized nodes"),
+        };
+
+        if local_peer_id.eq(&peer_id) {
+            debug!("Get build status (authorized node)");
+            self.build_event_client.get_build_status(build_id).await
+        } else {
+            debug!("Request build status in authorized node from p2p network");
+            self.p2p_client
+                .clone()
+                .request_build_status(&peer_id, String::from(build_id))
+                .await
+                .map_err(|e| BuildError::InitializationFailed(e.to_string()))
+        }
     }
 
     pub async fn handle_block_added(

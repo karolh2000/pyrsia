@@ -95,6 +95,11 @@ pub enum Command {
         data: Vec<u8>,
         channel: ResponseChannel<BlockchainResponse>,
     },
+    RequestBuildStatus {
+        peer: PeerId,
+        build_id: String,
+        sender: oneshot::Sender<anyhow::Result<String>>,
+    },
 }
 
 #[cfg(test)]

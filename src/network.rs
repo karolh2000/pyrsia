@@ -22,3 +22,4 @@ pub mod client;
 pub mod event_loop;
 pub mod idle_metric_protocol;
 pub mod p2p;
+pub mod build_status_protocol;

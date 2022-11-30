@@ -36,6 +36,7 @@ use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::Stream;
+use crate::network::build_status_protocol::{BuildStatusExchangeCodec, BuildStatusExchangeProtocol};
 
 /// Sets up the libp2p [`Swarm`] with the necessary components, doing the following things:
 ///
@@ -203,6 +204,11 @@ fn create_swarm(
                 blockchain_request_response: RequestResponse::new(
                     BlockchainExchangeCodec(),
                     iter::once((BlockchainExchangeProtocol(), ProtocolSupport::Full)),
+                    Default::default(),
+                ),
+                build_status_request_response: RequestResponse::new(
+                    BuildStatusExchangeCodec(),
+                    iter::once((BuildStatusExchangeProtocol(), ProtocolSupport::Full)),
                     Default::default(),
                 ),
             },

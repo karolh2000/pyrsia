@@ -29,6 +29,7 @@ use libp2p::kad::record::store::MemoryStore;
 use libp2p::kad::{Kademlia, KademliaEvent};
 use libp2p::request_response::{RequestResponse, RequestResponseEvent};
 use libp2p::NetworkBehaviour;
+use crate::network::build_status_protocol::{BuildStatusExchangeCodec, BuildStatusRequest, BuildStatusResponse};
 
 /// Defines the [`NetworkBehaviour`] to be used in the libp2p
 /// Swarm. The PyrsiaNetworkBehaviour consists of the following
@@ -48,6 +49,7 @@ pub struct PyrsiaNetworkBehaviour {
     pub build_request_response: RequestResponse<BuildExchangeCodec>,
     pub idle_metric_request_response: RequestResponse<IdleMetricExchangeCodec>,
     pub blockchain_request_response: RequestResponse<BlockchainExchangeCodec>,
+    pub build_status_request_response: RequestResponse<BuildStatusExchangeCodec>,
 }
 
 /// Each event in the `PyrsiaNetworkBehaviour` is wrapped in a
@@ -61,6 +63,7 @@ pub enum PyrsiaNetworkEvent {
     BuildRequestResponse(RequestResponseEvent<BuildRequest, BuildResponse>),
     IdleMetricRequestResponse(RequestResponseEvent<IdleMetricRequest, IdleMetricResponse>),
     BlockchainRequestResponse(RequestResponseEvent<BlockchainRequest, BlockchainResponse>),
+    BuildStatusRequestResponse(RequestResponseEvent<BuildStatusRequest, BuildStatusResponse>),
 }
 
 impl From<autonat::Event> for PyrsiaNetworkEvent {
@@ -102,5 +105,11 @@ impl From<RequestResponseEvent<IdleMetricRequest, IdleMetricResponse>> for Pyrsi
 impl From<RequestResponseEvent<BlockchainRequest, BlockchainResponse>> for PyrsiaNetworkEvent {
     fn from(event: RequestResponseEvent<BlockchainRequest, BlockchainResponse>) -> Self {
         PyrsiaNetworkEvent::BlockchainRequestResponse(event)
+    }
+}
+
+impl From<RequestResponseEvent<BuildStatusRequest, BuildStatusResponse>> for PyrsiaNetworkEvent {
+    fn from(event: RequestResponseEvent<BuildStatusRequest, BuildStatusResponse>) -> Self {
+        PyrsiaNetworkEvent::BuildStatusRequestResponse(event)
     }
 }
