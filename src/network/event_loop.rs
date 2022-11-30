@@ -371,8 +371,6 @@ impl PyrsiaEventLoop {
         }
     }
 
-    // Handles events from the `RequestResponse` for build exchange
-    // network behaviour.
     async fn handle_build_status_request_response_event(
         &mut self,
         event: RequestResponseEvent<BuildStatusRequest, BuildStatusResponse>,

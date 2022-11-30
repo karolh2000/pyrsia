@@ -180,7 +180,7 @@ impl ArtifactService {
         let nodes = self
             .transparency_log_service
             .get_authorized_nodes()
-            .map_err(|e| BuildError::InitializationFailed(e.to_string()))?;
+            .map_err(|e| BuildError::BuildStatusFailed(e.to_string()))?;
 
         let peer_id = match nodes
             .iter()
@@ -194,7 +194,7 @@ impl ArtifactService {
                 );
                 auth_peer_id
             }
-            None => panic!("Error while looking for authorized nodes"),
+            None => panic!("Error while looking for authorized nodes (build status)"),
         };
 
         if local_peer_id.eq(&peer_id) {
@@ -206,7 +206,7 @@ impl ArtifactService {
                 .clone()
                 .request_build_status(&peer_id, String::from(build_id))
                 .await
-                .map_err(|e| BuildError::InitializationFailed(e.to_string()))
+                .map_err(|e| BuildError::BuildStatusFailed(e.to_string()))
         }
     }
 

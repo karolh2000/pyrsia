@@ -233,8 +233,6 @@ pub async fn handle_query_block_ordinal_from_peer(
     Ok(())
 }
 
-// Respond to a RequestBuild event by getting the build
-/// based on the provided package_type and package_specific_id.
 pub async fn handle_request_build_status(
     mut p2p_client: Client,
     build_event_client: BuildEventClient,

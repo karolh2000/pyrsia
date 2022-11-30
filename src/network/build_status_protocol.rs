@@ -111,7 +111,7 @@ impl RequestResponseCodec for BuildStatusExchangeCodec {
     where
         T: AsyncWrite + Unpin + Send,
     {
-        debug!("Write BuildResponse: {}", status);
+        debug!("Write BuildStatusResponse: {}", status);
 
         write_length_prefixed(io, status).await?;
 
