@@ -1020,42 +1020,50 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_build_status_on_authorized_node() {
-        // test running
-        test_get_build_status("RUNNING").await;
-        // test success
-        test_get_build_status("SUCCESS").await;
-        // test FAILED
-        test_get_build_status("FAILED").await;
-    }
-
-    async fn test_get_build_status(build_status: &str) {
+        const BUILD_STATUS: &str = "RUNNING";
         let tmp_dir = test_util::tests::setup();
         let keypair = Keypair::generate();
-        let (_command_receiver, p2p_client) = create_p2p_client(&keypair);
+        let (mut _command_receiver, p2p_client) = create_p2p_client(&keypair);
         let (mut build_event_receiver, mut artifact_service) =
             create_artifact_service(&tmp_dir, &keypair, p2p_client.clone()).await;
 
         let build_id = uuid::Uuid::new_v4().to_string();
+
         // get build status
-        let build_status_receiver = String::from(build_status);
         tokio::spawn(async move {
             loop {
                 match build_event_receiver.recv().await {
                     Some(BuildEvent::Status { sender, .. }) => {
-                        let _ = sender.send(Ok(build_status_receiver.clone()));
+                        let _ = sender.send(Ok(BUILD_STATUS.parse().unwrap()));
                     }
                     _ => panic!(
                         "BuildEvent must match BuildEvent::Status ({})",
-                        build_status_receiver
+                        BUILD_STATUS
                     ),
                 }
             }
         });
 
+        tokio::spawn(async move {
+            loop {
+                match _command_receiver.recv().await {
+                    Some(Command::ListPeers { sender, .. }) => {
+                        let _ = sender.send(HashSet::new());
+                    }
+                    _ => panic!("Command must match Command::ListPeers"),
+                }
+            }
+        });
+
+        artifact_service
+            .transparency_log_service
+            .add_authorized_node(p2p_client.local_peer_id)
+            .await
+            .unwrap();
+
         let result = artifact_service.get_build_status(&build_id).await.unwrap();
 
-        //assert_eq!(result, build_status);
-        assert_eq!(result, build_status);
+        assert_eq!(result, BUILD_STATUS);
         test_util::tests::teardown(tmp_dir);
     }
 }
